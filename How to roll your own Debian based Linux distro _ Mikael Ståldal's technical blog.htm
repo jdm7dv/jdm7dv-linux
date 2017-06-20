@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en-US"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<title>How to roll your own Debian based Linux distro | Mikael Ståldal's technical blog</title>
+<link rel="profile" href="http://gmpg.org/xfn/11">
+<link rel="stylesheet" type="text/css" media="all" href="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/style.css">
+<link rel="pingback" href="https://www.staldal.nu/tech/xmlrpc.php">
+<link rel="dns-prefetch" href="https://s.w.org/">
+<link rel="alternate" type="application/rss+xml" title="Mikael Ståldal's technical blog » Feed" href="https://www.staldal.nu/tech/feed/">
+<link rel="alternate" type="application/rss+xml" title="Mikael Ståldal's technical blog » Comments Feed" href="https://www.staldal.nu/tech/comments/feed/">
+<link rel="alternate" type="application/rss+xml" title="Mikael Ståldal's technical blog » How to roll your own Debian based Linux distro Comments Feed" href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/feed/">
+		<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/www.staldal.nu\/tech\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.7.3"}};
+			!function(a,b,c){function d(a){var b,c,d,e,f=String.fromCharCode;if(!k||!k.fillText)return!1;switch(k.clearRect(0,0,j.width,j.height),k.textBaseline="top",k.font="600 32px Arial",a){case"flag":return k.fillText(f(55356,56826,55356,56819),0,0),!(j.toDataURL().length<3e3)&&(k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,65039,8205,55356,57096),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,55356,57096),0,0),c=j.toDataURL(),b!==c);case"emoji4":return k.fillText(f(55357,56425,55356,57341,8205,55357,56507),0,0),d=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55357,56425,55356,57341,55357,56507),0,0),e=j.toDataURL(),d!==e}return!1}function e(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i,j=b.createElement("canvas"),k=j.getContext&&j.getContext("2d");for(i=Array("flag","emoji4"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script><script src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/wp-emoji-release.js" type="text/javascript" defer="defer"></script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<link rel="https://api.w.org/" href="https://www.staldal.nu/tech/wp-json/">
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://www.staldal.nu/tech/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="https://www.staldal.nu/tech/wp-includes/wlwmanifest.xml"> 
+<link rel="prev" title="How to move MySQL data directory in Ubuntu Server" href="https://www.staldal.nu/tech/2011/12/09/how-to-move-mysql-data-directory-in-ubuntu-server/">
+<link rel="next" title="How to roll your own bootable Linux CD-ROM" href="https://www.staldal.nu/tech/2012/01/04/how-to-roll-your-own-bootable-linux-cd-rom/">
+<meta name="generator" content="WordPress 4.7.3">
+<link rel="canonical" href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/">
+<link rel="shortlink" href="https://www.staldal.nu/tech/?p=217">
+<link rel="alternate" type="application/json+oembed" href="https://www.staldal.nu/tech/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.staldal.nu%2Ftech%2F2011%2F12%2F11%2Fhow-to-roll-your-own-debian-based-linux-distro%2F">
+<link rel="alternate" type="text/xml+oembed" href="https://www.staldal.nu/tech/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.staldal.nu%2Ftech%2F2011%2F12%2F11%2Fhow-to-roll-your-own-debian-based-linux-distro%2F&amp;format=xml">
+
+<!-- Bad Behavior 2.2.18 run time: 2.870 ms -->
+<script type="text/javascript">
+<!--
+function bb2_addLoadEvent(func) {
+	var oldonload = window.onload;
+	if (typeof window.onload != 'function') {
+		window.onload = func;
+	} else {
+		window.onload = function() {
+			oldonload();
+			func();
+		}
+	}
+}
+
+bb2_addLoadEvent(function() {
+	for ( i=0; i < document.forms.length; i++ ) {
+		if (document.forms[i].method == 'post') {
+			var myElement = document.createElement('input');
+			myElement.setAttribute('type', 'hidden');
+			myElement.name = 'bb2_screener_';
+			myElement.value = '1497949124 68.32.233.40';
+			document.forms[i].appendChild(myElement);
+		}
+	}
+});
+// --></script>
+		</head>
+
+<body class="post-template-default single single-post postid-217 single-format-standard">
+<div id="wrapper" class="hfeed">
+	<div id="header">
+		<div id="masthead">
+			<div id="branding" role="banner">
+								<div id="site-title">
+					<span>
+						<a href="https://www.staldal.nu/tech/" title="Mikael Ståldal's technical blog" rel="home">Mikael Ståldal's technical blog</a>
+					</span>
+				</div>
+				<div id="site-description">Programming and software</div>
+
+										<img src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/concave.jpg" alt="" height="198" width="940">
+								</div><!-- #branding -->
+
+			<div id="access" role="navigation">
+			  				<div class="skip-link screen-reader-text"><a href="#content" title="Skip to content">Skip to content</a></div>
+								<div class="menu"><ul>
+<li><a href="https://www.staldal.nu/tech/">Home</a></li><li class="page_item page-item-4"><a href="https://www.staldal.nu/tech/masters-project/">Master’s Project</a></li>
+</ul></div>
+			</div><!-- #access -->
+		</div><!-- #masthead -->
+	</div><!-- #header -->
+
+	<div id="main">
+
+		<div id="container">
+			<div id="content" role="main">
+
+			
+
+				<div id="nav-above" class="navigation">
+					<div class="nav-previous"><a href="https://www.staldal.nu/tech/2011/12/09/how-to-move-mysql-data-directory-in-ubuntu-server/" rel="prev"><span class="meta-nav">←</span> How to move MySQL data directory in Ubuntu Server</a></div>
+					<div class="nav-next"><a href="https://www.staldal.nu/tech/2012/01/04/how-to-roll-your-own-bootable-linux-cd-rom/" rel="next">How to roll your own bootable Linux CD-ROM <span class="meta-nav">→</span></a></div>
+				</div><!-- #nav-above -->
+
+				<div id="post-217" class="post-217 post type-post status-publish format-standard hentry category-linux">
+					<h1 class="entry-title">How to roll your own Debian based Linux distro</h1>
+
+					<div class="entry-meta">
+						<span class="meta-prep meta-prep-author">Posted on</span> <a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/" title="23:10" rel="bookmark"><span class="entry-date">December 11, 2011</span></a> <span class="meta-sep">by</span> <span class="author vcard"><a class="url fn n" href="https://www.staldal.nu/tech/author/admin/" title="View all posts by Mikael Ståldal">Mikael Ståldal</a></span>					</div><!-- .entry-meta -->
+
+					<div class="entry-content">
+						<h3>Goal</h3>
+<p>To build a minimal Debian based Linux system with a fully functional 
+bash shell, TCP/IP networking with DHCP client and apt setup to be able 
+to install any package from the Debian repositories. The resulting 
+system will use about 157 MB disk space and consume less than 10 MB RAM.</p>
+<p><em>This is now implemented in <a href="http://www.bachatalinux.net/">Bachata Linux</a>.</em></p>
+<h3>Prerequisites</h3>
+<p>A Debian based Linux system to work from (e.g. Ubuntu desktop) with the <code>debootstrap</code> and <code>extlinux</code> packages installed. Some virtualization environment is highly recommended for testing, such as KVM/QEMU.</p>
+<h3>Install system</h3>
+<p>This will install the system on a disk mounted at <code>mnt</code>. Choose a hostname for the instance to create, substitute it for ${HOSTNAME}. Substitute the URL to your nearest <a href="http://www.debian.org/mirror/">Debian mirror</a> for ${MIRROR}.</p>
+<ol>
+<li><code>sudo debootstrap --variant=minbase 
+--include=localepurge,netbase,ifupdown,net-tools,isc-dhcp-client,linux-base,linux-image-2.6-686,linux-image-2.6.32-5-686
+ squeeze mnt ${MIRROR}</code>
+</li>
+<li>sudo rm mnt/etc/udev/rules.d/70-persistent-net.rules
+</li>
+<li>sudo rm mnt/var/cache/apt/archives/*
+</li>
+<li>sudo rm mnt/var/cache/apt/*.bin
+</li>
+<li>sudo rm mnt/var/lib/apt/lists/*
+</li>
+<li>sudo rm mnt/var/log/dpkg.log*
+</li>
+<li>sudo rm mnt/var/log/apt/*
+</li>
+<li>sudo mkdir mnt/boot/extlinux
+</li>
+<li><code>sudo extlinux --install mnt/boot/extlinux</code>
+</li>
+<li>sudoedit mnt/boot/extlinux/syslinux.cfg
+<pre>default linux 
+    label linux
+    kernel /boot/vmlinuz-2.6.32-5-686
+    append initrd=/boot/initrd.img-2.6.32-5-686 root=UUID=${UUID} ro quiet</pre>
+<p><em>Only for KVM/QEMU:</em> add <code>console=ttyS0</code> to the “append” line</p>
+</li>
+<li>sudoedit mnt/etc/inittab<br>
+<em>For KVM/QEMU:</em> uncomment getty ttyS0 and comment out getty tty[1-6]<br>
+<em>For others:</em> comment out getty tty[2-6]<p></p>
+</li>
+<li>sudoedit mnt/etc/passwd – blank password for root
+</li>
+<li>sudoedit mnt/etc/network/interfaces
+<pre>auto lo
+iface lo inet loopback
+allow-hotplug eth0
+iface eth0 inet dhcp
+</pre>
+</li>
+<li>sudoedit mnt/etc/fstab
+<pre># /etc/fstab: static file system information.
+#
+# Use 'blkid -o value -s UUID' to print the universally unique identifier
+# for a device; this may be used with UUID= as a more robust way to name
+# devices that works even if disks are added and removed. See fstab(5).
+#
+# &lt;file system&gt; &lt;mount point&gt;   &lt;type&gt;  &lt;options&gt;             &lt;dump&gt;  &lt;pass&gt;
+proc            /proc           proc    nodev,noexec,nosuid   0       0
+UUID=${UUID}        /               ext2    errors=remount-ro     0       1
+</pre>
+</li>
+<li>sudoedit mnt/etc/hostname
+<pre>${HOSTNAME}
+</pre>
+</li>
+<li>sudoedit mnt/etc/locale.nopurge
+<pre>MANDELETE
+
+DONTBOTHERNEWLOCALE
+
+SHOWFREEDSPACE
+
+#QUICKNDIRTYCALC
+
+#VERBOSE
+
+en
+</pre>
+</li>
+<li>sudoedit mnt/etc/apt/sources.list
+<pre>deb ${MIRROR} squeeze main
+deb-src ${MIRROR} squeeze main
+
+deb http://security.debian.org/ squeeze/updates main
+deb-src http://security.debian.org/ squeeze/updates main
+
+# squeeze-updates, previously known as 'volatile'
+deb ${MIRROR} squeeze-updates main
+deb-src ${MIRROR} squeeze-updates main
+</pre>
+</li>
+<li>sudoedit mnt/etc/apt/apt.conf.d/02nocache
+<pre>Dir::Cache {
+  srcpkgcache "";
+  pkgcache "";
+}
+</pre>
+</li>
+<li>sudoedit mnt/etc/apt/apt.conf.d/02compress-indexes
+<pre>Acquire::GzipIndexes "true";
+Acquire::CompressionTypes::Order:: "gz";
+</pre>
+</li>
+<li>sudo chroot mnt localepurge
+</li>
+<li>sudo chroot mnt apt-get update
+</li>
+<li>sudo chroot mnt passwd root
+</li>
+</ol>
+<h3>Install on a physical disk</h3>
+<ol>
+<li>Create a bootable partition of at least 288 MB with system code 83 “Linux” using <code>fdisk</code></li>
+<li>sudo mke2fs -L ${HOSTNAME} -t ext2 /dev/<em>xxxx</em>
+</li>
+<li>sudo UUID=`blkid -o value -s UUID /dev/<em>xxxx</em>`
+</li>
+<li>mkdir mnt
+</li>
+<li>sudo mount /dev/<em>xxxx</em> mnt
+</li>
+<li><em>Install system as above</em>
+</li>
+<li>sudo umount mnt
+</li>
+</ol>
+<h3>Install in KVM/QEMU</h3>
+<ol>
+<li>dd if=/dev/zero of=${HOSTNAME}.img bs=1024 count=288K
+</li>
+<li>mke2fs -L ${HOSTNAME} -t ext2 ${HOSTNAME}.img
+</li>
+<li>UUID=`blkid -o value -s UUID ${HOSTNAME}.img`
+</li>
+<li>mkdir mnt
+</li>
+<li>sudo mount ${HOSTNAME}.img mnt
+</li>
+<li><em>Install system as above</em>
+</li>
+<li>sudo umount mnt
+</li>
+<li><code>virt-install --connect qemu:///system -n ${HOSTNAME} -r 256 
+--os-type linux --os-variant debiansqueeze --import --disk 
+path=${HOSTNAME}.img --network=network:default --graphics none 
+--virt-type kvm</code>
+</li>
+</ol>
+<p>Use <code>--virt-type qemu</code> if your CPU doesn’t support virtualization.</p>
+<p>Then you can start it with <code>virsh start ${HOSTNAME}</code> and connect to it with <code>virsh console ${HOSTNAME}</code></p>
+<p>For some reason, doing <code>reboot</code> from inside the guest doesn’t seem to work properly. <code>virsh reboot</code> and <code>virsh shutdown</code> doesn’t work either (you might get that to work by installing some ACPI stuff in the guest). Use <code>halt</code> from inside the guest to have a clean shutdown, and then restart it with <code>virsh start</code>.</p>
+<h3>Install in VirtualBox 4.1</h3>
+<p>First create a virtual machine in VirtualBox with an empty VDI disk ${VDI_FILE} of least 288 MB.</p>
+<p>Install VDI mounting tool according to <a href="http://jorgenmodin.net/index_html/archive/2011/12/13/mount-a-virtualbox-vdi-file-on-ubuntu-and-debian">this</a> description.</p>
+<ol>
+<li>mkdir vdi-mount</li>
+<li>vdfuse-v82a -f ${VDI_FILE} vdi-mount</li>
+<li>mke2fs -L ${HOSTNAME} -t ext2 vdi-mount/EntireDisk</li>
+<li>mkdir mnt</li>
+<li>sudo mount vdi-mount/EntireDisk mnt</li>
+<li><em>Install system as above</em></li>
+<li>sudo umount mnt</li>
+<li>fusermount -u vdi-mount</li>
+</ol>
+<p>Then start the virtual machine in VirtualBox.</p>
+<h3>Install in other virtualization environments</h3>
+<p><em>Please tell me how!</em></p>
+											</div><!-- .entry-content -->
+
+
+					<div class="entry-utility">
+						This entry was posted in <a href="https://www.staldal.nu/tech/category/linux/" rel="category tag">Linux</a>. Bookmark the <a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/" title="Permalink to How to roll your own Debian based Linux distro" rel="bookmark">permalink</a>.											</div><!-- .entry-utility -->
+				</div><!-- #post-## -->
+
+				<div id="nav-below" class="navigation">
+					<div class="nav-previous"><a href="https://www.staldal.nu/tech/2011/12/09/how-to-move-mysql-data-directory-in-ubuntu-server/" rel="prev"><span class="meta-nav">←</span> How to move MySQL data directory in Ubuntu Server</a></div>
+					<div class="nav-next"><a href="https://www.staldal.nu/tech/2012/01/04/how-to-roll-your-own-bootable-linux-cd-rom/" rel="next">How to roll your own bootable Linux CD-ROM <span class="meta-nav">→</span></a></div>
+				</div><!-- #nav-below -->
+
+				
+			<div id="comments">
+
+
+			<h3 id="comments-title">18 Responses to <em>How to roll your own Debian based Linux distro</em></h3>
+
+
+			<ol class="commentlist">
+					<li class="comment byuser comment-author-admin bypostauthor even thread-even depth-1" id="li-comment-3198">
+		<div id="comment-3198">
+			<div class="comment-author vcard">
+				<img alt="" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/b44dfb774654898d4cb0e24384c7a0aa.jpg" srcset="https://secure.gravatar.com/avatar/b44dfb774654898d4cb0e24384c7a0aa?s=80&amp;d=mm&amp;r=g 2x" class="avatar avatar-40 photo" height="40" width="40">				<cite class="fn"><a href="http://www.staldal.nu/" rel="external nofollow" class="url">Mikael Ståldal</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+			
+			<div class="comment-meta commentmetadata"><a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#comment-3198">
+				December 12, 2011 at 21:25</a>			</div><!-- .comment-meta .commentmetadata -->
+
+			<div class="comment-body"><p>Updated with disabling apt cache to save some more disk space.</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+
+	</li><!-- #comment-## -->
+	<li class="comment byuser comment-author-admin bypostauthor odd alt thread-odd thread-alt depth-1" id="li-comment-3199">
+		<div id="comment-3199">
+			<div class="comment-author vcard">
+				<img alt="" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/b44dfb774654898d4cb0e24384c7a0aa.jpg" srcset="https://secure.gravatar.com/avatar/b44dfb774654898d4cb0e24384c7a0aa?s=80&amp;d=mm&amp;r=g 2x" class="avatar avatar-40 photo" height="40" width="40">				<cite class="fn"><a href="http://www.staldal.nu/" rel="external nofollow" class="url">Mikael Ståldal</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+			
+			<div class="comment-meta commentmetadata"><a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#comment-3199">
+				December 12, 2011 at 21:45</a>			</div><!-- .comment-meta .commentmetadata -->
+
+			<div class="comment-body"><p>Remove some log files.</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+
+	</li><!-- #comment-## -->
+	<li class="comment byuser comment-author-admin bypostauthor even thread-even depth-1" id="li-comment-3201">
+		<div id="comment-3201">
+			<div class="comment-author vcard">
+				<img alt="" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/b44dfb774654898d4cb0e24384c7a0aa.jpg" srcset="https://secure.gravatar.com/avatar/b44dfb774654898d4cb0e24384c7a0aa?s=80&amp;d=mm&amp;r=g 2x" class="avatar avatar-40 photo" height="40" width="40">				<cite class="fn"><a href="http://www.staldal.nu/" rel="external nofollow" class="url">Mikael Ståldal</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+			
+			<div class="comment-meta commentmetadata"><a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#comment-3201">
+				December 12, 2011 at 22:03</a>			</div><!-- .comment-meta .commentmetadata -->
+
+			<div class="comment-body"><p>Compress apt indexes.</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+
+	</li><!-- #comment-## -->
+	<li class="comment byuser comment-author-admin bypostauthor odd alt thread-odd thread-alt depth-1" id="li-comment-3202">
+		<div id="comment-3202">
+			<div class="comment-author vcard">
+				<img alt="" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/b44dfb774654898d4cb0e24384c7a0aa.jpg" srcset="https://secure.gravatar.com/avatar/b44dfb774654898d4cb0e24384c7a0aa?s=80&amp;d=mm&amp;r=g 2x" class="avatar avatar-40 photo" height="40" width="40">				<cite class="fn"><a href="http://www.staldal.nu/" rel="external nofollow" class="url">Mikael Ståldal</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+			
+			<div class="comment-meta commentmetadata"><a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#comment-3202">
+				December 12, 2011 at 22:21</a>			</div><!-- .comment-meta .commentmetadata -->
+
+			<div class="comment-body"><p>Fix Debian mirror URL.</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+
+	</li><!-- #comment-## -->
+	<li class="comment byuser comment-author-admin bypostauthor even thread-even depth-1" id="li-comment-3204">
+		<div id="comment-3204">
+			<div class="comment-author vcard">
+				<img alt="" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/b44dfb774654898d4cb0e24384c7a0aa.jpg" srcset="https://secure.gravatar.com/avatar/b44dfb774654898d4cb0e24384c7a0aa?s=80&amp;d=mm&amp;r=g 2x" class="avatar avatar-40 photo" height="40" width="40">				<cite class="fn"><a href="http://www.staldal.nu/" rel="external nofollow" class="url">Mikael Ståldal</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+			
+			<div class="comment-meta commentmetadata"><a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#comment-3204">
+				December 12, 2011 at 22:47</a>			</div><!-- .comment-meta .commentmetadata -->
+
+			<div class="comment-body"><p>Added localepurge.</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+
+	</li><!-- #comment-## -->
+	<li class="comment byuser comment-author-admin bypostauthor odd alt thread-odd thread-alt depth-1" id="li-comment-3207">
+		<div id="comment-3207">
+			<div class="comment-author vcard">
+				<img alt="" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/b44dfb774654898d4cb0e24384c7a0aa.jpg" srcset="https://secure.gravatar.com/avatar/b44dfb774654898d4cb0e24384c7a0aa?s=80&amp;d=mm&amp;r=g 2x" class="avatar avatar-40 photo" height="40" width="40">				<cite class="fn"><a href="http://www.staldal.nu/" rel="external nofollow" class="url">Mikael Ståldal</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+			
+			<div class="comment-meta commentmetadata"><a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#comment-3207">
+				December 13, 2011 at 21:08</a>			</div><!-- .comment-meta .commentmetadata -->
+
+			<div class="comment-body"><p>Clarify Debian mirrors.</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+
+	</li><!-- #comment-## -->
+	<li class="comment byuser comment-author-admin bypostauthor even thread-even depth-1" id="li-comment-3225">
+		<div id="comment-3225">
+			<div class="comment-author vcard">
+				<img alt="" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/b44dfb774654898d4cb0e24384c7a0aa.jpg" srcset="https://secure.gravatar.com/avatar/b44dfb774654898d4cb0e24384c7a0aa?s=80&amp;d=mm&amp;r=g 2x" class="avatar avatar-40 photo" height="40" width="40">				<cite class="fn"><a href="http://www.staldal.nu/" rel="external nofollow" class="url">Mikael Ståldal</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+			
+			<div class="comment-meta commentmetadata"><a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#comment-3225">
+				December 15, 2011 at 15:22</a>			</div><!-- .comment-meta .commentmetadata -->
+
+			<div class="comment-body"><p>Updated required size of disk image.</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+
+	</li><!-- #comment-## -->
+	<li class="comment byuser comment-author-admin bypostauthor odd alt thread-odd thread-alt depth-1" id="li-comment-3226">
+		<div id="comment-3226">
+			<div class="comment-author vcard">
+				<img alt="" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/b44dfb774654898d4cb0e24384c7a0aa.jpg" srcset="https://secure.gravatar.com/avatar/b44dfb774654898d4cb0e24384c7a0aa?s=80&amp;d=mm&amp;r=g 2x" class="avatar avatar-40 photo" height="40" width="40">				<cite class="fn"><a href="http://www.staldal.nu/" rel="external nofollow" class="url">Mikael Ståldal</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+			
+			<div class="comment-meta commentmetadata"><a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#comment-3226">
+				December 15, 2011 at 15:30</a>			</div><!-- .comment-meta .commentmetadata -->
+
+			<div class="comment-body"><p>Updated with using chroot.</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+
+	</li><!-- #comment-## -->
+	<li class="comment byuser comment-author-admin bypostauthor even thread-even depth-1" id="li-comment-3227">
+		<div id="comment-3227">
+			<div class="comment-author vcard">
+				<img alt="" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/b44dfb774654898d4cb0e24384c7a0aa.jpg" srcset="https://secure.gravatar.com/avatar/b44dfb774654898d4cb0e24384c7a0aa?s=80&amp;d=mm&amp;r=g 2x" class="avatar avatar-40 photo" height="40" width="40">				<cite class="fn"><a href="http://www.staldal.nu/" rel="external nofollow" class="url">Mikael Ståldal</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+			
+			<div class="comment-meta commentmetadata"><a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#comment-3227">
+				December 15, 2011 at 16:21</a>			</div><!-- .comment-meta .commentmetadata -->
+
+			<div class="comment-body"><p>Updated with using UUID for root device.</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+
+	</li><!-- #comment-## -->
+	<li class="comment byuser comment-author-admin bypostauthor odd alt thread-odd thread-alt depth-1" id="li-comment-3228">
+		<div id="comment-3228">
+			<div class="comment-author vcard">
+				<img alt="" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/b44dfb774654898d4cb0e24384c7a0aa.jpg" srcset="https://secure.gravatar.com/avatar/b44dfb774654898d4cb0e24384c7a0aa?s=80&amp;d=mm&amp;r=g 2x" class="avatar avatar-40 photo" height="40" width="40">				<cite class="fn"><a href="http://www.staldal.nu/" rel="external nofollow" class="url">Mikael Ståldal</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+			
+			<div class="comment-meta commentmetadata"><a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#comment-3228">
+				December 15, 2011 at 21:33</a>			</div><!-- .comment-meta .commentmetadata -->
+
+			<div class="comment-body"><p>Fixed network configuration.</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+
+	</li><!-- #comment-## -->
+	<li class="comment byuser comment-author-admin bypostauthor even thread-even depth-1" id="li-comment-3243">
+		<div id="comment-3243">
+			<div class="comment-author vcard">
+				<img alt="" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/b44dfb774654898d4cb0e24384c7a0aa.jpg" srcset="https://secure.gravatar.com/avatar/b44dfb774654898d4cb0e24384c7a0aa?s=80&amp;d=mm&amp;r=g 2x" class="avatar avatar-40 photo" height="40" width="40">				<cite class="fn"><a href="http://www.staldal.nu/" rel="external nofollow" class="url">Mikael Ståldal</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+			
+			<div class="comment-meta commentmetadata"><a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#comment-3243">
+				December 17, 2011 at 21:36</a>			</div><!-- .comment-meta .commentmetadata -->
+
+			<div class="comment-body"><p>This is now implemented in <a href="http://www.bachatalinux.net/" rel="nofollow">Bachata Linux</a>.</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+
+	</li><!-- #comment-## -->
+	<li class="post pingback">
+		<p>Pingback: <a href="http://www.staldal.nu/tech/2012/01/14/bachata-linux/" rel="external nofollow" class="url">Bachata Linux | Mikael Ståldal’s technical blog</a></p>
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-5221">
+		<div id="comment-5221">
+			<div class="comment-author vcard">
+				<img alt="" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/cc2af4463d0deb936aed9d9f1ff92f07.jpg" srcset="https://secure.gravatar.com/avatar/cc2af4463d0deb936aed9d9f1ff92f07?s=80&amp;d=mm&amp;r=g 2x" class="avatar avatar-40 photo" height="40" width="40">				<cite class="fn">Andre Klärner</cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+			
+			<div class="comment-meta commentmetadata"><a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#comment-5221">
+				July 21, 2012 at 11:48</a>			</div><!-- .comment-meta .commentmetadata -->
+
+			<div class="comment-body"><p>maybe it would be cool to replace the default mirror with <a href="http://http.debian.net/" rel="nofollow">http://http.debian.net</a> as this will also benefit each user, that runs the system later on. That way the nearest mirror is determined at runtime.</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-5499">
+		<div id="comment-5499">
+			<div class="comment-author vcard">
+				<img alt="" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/d1248be046219f8857eb211499c52c61.jpg" srcset="https://secure.gravatar.com/avatar/d1248be046219f8857eb211499c52c61?s=80&amp;d=mm&amp;r=g 2x" class="avatar avatar-40 photo" height="40" width="40">				<cite class="fn">James Ganong</cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+			
+			<div class="comment-meta commentmetadata"><a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#comment-5499">
+				September 7, 2012 at 20:19</a>			</div><!-- .comment-meta .commentmetadata -->
+
+			<div class="comment-body"><p>Thanks for this.  With VirtualBox I was getting:<br>
+FATAL: No bootable medium was found.<br>
+This was because there was no MBR on the virtual disk. This fixed it for me:</p>
+<p>mkdir /tmp/mnt; vdfuse -f ${HOSTNAME}.vdi    /tmp/mnt<br>
+dd bs=440 count=1 conv=notrunc if=/usr/lib/syslinux/mbr.bin of=/tmp/mnt/EntireDisk</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-9612">
+		<div id="comment-9612">
+			<div class="comment-author vcard">
+				<img alt="" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/a814c6dfcc897ab715f6a65f988adad4.jpg" srcset="https://secure.gravatar.com/avatar/a814c6dfcc897ab715f6a65f988adad4?s=80&amp;d=mm&amp;r=g 2x" class="avatar avatar-40 photo" height="40" width="40">				<cite class="fn"><a href="http://www.easyzonecorp.net/" rel="external nofollow" class="url">Chuan</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+			
+			<div class="comment-meta commentmetadata"><a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#comment-9612">
+				January 24, 2013 at 1:38</a>			</div><!-- .comment-meta .commentmetadata -->
+
+			<div class="comment-body"><p>Thank you so much for your blog.</p>
+<p>Could you please let me know how to create it as iso file?</p>
+<p>Regards</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+
+	</li><!-- #comment-## -->
+	<li class="comment byuser comment-author-admin bypostauthor even thread-even depth-1" id="li-comment-9636">
+		<div id="comment-9636">
+			<div class="comment-author vcard">
+				<img alt="" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/b44dfb774654898d4cb0e24384c7a0aa.jpg" srcset="https://secure.gravatar.com/avatar/b44dfb774654898d4cb0e24384c7a0aa?s=80&amp;d=mm&amp;r=g 2x" class="avatar avatar-40 photo" height="40" width="40">				<cite class="fn"><a href="http://www.staldal.nu/" rel="external nofollow" class="url">Mikael Ståldal</a></cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+			
+			<div class="comment-meta commentmetadata"><a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#comment-9636">
+				January 24, 2013 at 21:45</a>			</div><!-- .comment-meta .commentmetadata -->
+
+			<div class="comment-body"><p>Here I describe how to create it as an ISO file:<br>
+<a href="http://www.staldal.nu/tech/2012/01/04/how-to-roll-your-own-bootable-linux-cd-rom/" rel="nofollow">http://www.staldal.nu/tech/2012/01/04/how-to-roll-your-own-bootable-linux-cd-rom/</a></p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-41691">
+		<div id="comment-41691">
+			<div class="comment-author vcard">
+				<img alt="" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/96cd5d2fbe1a8bc5860e8729f94cd7b4.jpg" srcset="https://secure.gravatar.com/avatar/96cd5d2fbe1a8bc5860e8729f94cd7b4?s=80&amp;d=mm&amp;r=g 2x" class="avatar avatar-40 photo" height="40" width="40">				<cite class="fn">francois</cite> <span class="says">says:</span>			</div><!-- .comment-author .vcard -->
+			
+			<div class="comment-meta commentmetadata"><a href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#comment-41691">
+				March 11, 2014 at 10:34</a>			</div><!-- .comment-meta .commentmetadata -->
+
+			<div class="comment-body"><p>hi!</p>
+<p>very nice work, but….</p>
+<p>you did a quite fully documented post , but when it come to the most important part you just said :” Install system as above ”</p>
+<p>well done! <img draggable="false" class="emoji" alt="🙂" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/1f642.svg"></p>
+<p>but how exactly?</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</div><!-- #comment-##  -->
+
+	</li><!-- #comment-## -->
+			</ol>
+
+
+	
+
+	<div id="respond" class="comment-respond">
+		<h3 id="reply-title" class="comment-reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="https://www.staldal.nu/tech/2011/12/11/how-to-roll-your-own-debian-based-linux-distro/#respond" style="display:none;">Cancel reply</a></small></h3>			<form action="https://www.staldal.nu/tech/wp-comments-post.php" method="post" id="commentform" class="comment-form">
+				<p class="comment-notes"><span id="email-notes">Your email address will not be published.</span> Required fields are marked <span class="required">*</span></p><p class="comment-form-comment"><label for="comment">Comment</label> <textarea id="comment" name="comment" cols="45" rows="8" maxlength="65525" aria-required="true" required="required"></textarea><div id="answerdiv">
+        <p><br>
+<label for="answer">Write <b>ninehundredtwentysix</b> with digits:</label><br>        <input name="answer" id="answer" size="6" tabindex="4" type="text">
+        <input name="correct_answer" value="89da3d8a3c24dbd3e5e96f7f3896866f5e5eb878" type="hidden">
+(this is a <a href="http://en.wikipedia.org/wiki/Captcha">captcha</a>)
+        </p>
+    </div></p><p class="comment-form-author"><label for="author">Name <span class="required">*</span></label> <input id="author" name="author" size="30" maxlength="245" aria-required="true" required="required" type="text"></p>
+<p class="comment-form-email"><label for="email">Email <span class="required">*</span></label> <input id="email" name="email" size="30" maxlength="100" aria-describedby="email-notes" aria-required="true" required="required" type="text"></p>
+<p class="comment-form-url"><label for="url">Website</label> <input id="url" name="url" size="30" maxlength="200" type="text"></p>
+<p class="form-submit"><input name="submit" id="submit" class="submit" value="Post Comment" type="submit"> <input name="comment_post_ID" value="217" id="comment_post_ID" type="hidden">
+<input name="comment_parent" id="comment_parent" value="0" type="hidden">
+</p>    
+
+     <script type="text/javascript">
+        var commentField = document.getElementById("comment");
+        var submitp = commentField.parentNode;
+        var answerDiv = document.getElementById("answerdiv");
+        submitp.appendChild(answerDiv, commentField);
+    </script>
+
+    			<input name="bb2_screener_" value="1497949124 68.32.233.40" type="hidden"></form>
+			</div><!-- #respond -->
+	
+</div><!-- #comments -->
+
+
+			</div><!-- #content -->
+		</div><!-- #container -->
+
+
+		<div id="primary" class="widget-area" role="complementary">
+			<ul class="xoxo">
+
+<li id="search-3" class="widget-container widget_search"><form role="search" method="get" id="searchform" class="searchform" action="https://www.staldal.nu/tech/">
+				<div>
+					<label class="screen-reader-text" for="s">Search for:</label>
+					<input name="s" id="s" type="text">
+					<input id="searchsubmit" value="Search" type="submit">
+				</div>
+			</form></li><li id="pages-3" class="widget-container widget_pages"><h3 class="widget-title">Pages</h3>		<ul>
+			<li class="page_item page-item-4"><a href="https://www.staldal.nu/tech/masters-project/">Master’s Project</a></li>
+		</ul>
+		</li><li id="linkcat-7" class="widget-container widget_links"><h3 class="widget-title">Mikael Ståldal</h3>
+	<ul class="xoxo blogroll">
+<li><a href="http://www.staldal.nu/sendmsg-en.php">Send message to me</a></li>
+
+	</ul>
+</li>
+<li id="linkcat-8" class="widget-container widget_links"><h3 class="widget-title">Software projects</h3>
+	<ul class="xoxo blogroll">
+<li><a href="http://sourceforge.net/projects/lagoon" title="Lagoon is an XML-based framework for web site maintenance">Lagoon</a></li>
+<li><a href="http://sourceforge.net/projects/lspx" title="LSP is an advanced web template language based on XML technology">LSP</a></li>
+
+	</ul>
+</li>
+<li id="categories-2" class="widget-container widget_categories"><h3 class="widget-title">Categories</h3>		<ul>
+	<li class="cat-item cat-item-4"><a href="https://www.staldal.nu/tech/category/ajax/">AJAX</a>
+</li>
+	<li class="cat-item cat-item-14"><a href="https://www.staldal.nu/tech/category/android/">Android</a>
+</li>
+	<li class="cat-item cat-item-16"><a href="https://www.staldal.nu/tech/category/database/">database</a>
+</li>
+	<li class="cat-item cat-item-11"><a href="https://www.staldal.nu/tech/category/hardware/">hardware</a>
+</li>
+	<li class="cat-item cat-item-2"><a href="https://www.staldal.nu/tech/category/java/">Java</a>
+</li>
+	<li class="cat-item cat-item-10"><a href="https://www.staldal.nu/tech/category/javaee/">JavaEE</a>
+</li>
+	<li class="cat-item cat-item-5"><a href="https://www.staldal.nu/tech/category/linux/">Linux</a>
+</li>
+	<li class="cat-item cat-item-13"><a href="https://www.staldal.nu/tech/category/php/">PHP</a>
+</li>
+	<li class="cat-item cat-item-19"><a href="https://www.staldal.nu/tech/category/programming/">programming</a>
+</li>
+	<li class="cat-item cat-item-18"><a href="https://www.staldal.nu/tech/category/reactive/">reactive</a>
+</li>
+	<li class="cat-item cat-item-9"><a href="https://www.staldal.nu/tech/category/security/">security</a>
+</li>
+	<li class="cat-item cat-item-12"><a href="https://www.staldal.nu/tech/category/ubuntu/">Ubuntu</a>
+</li>
+	<li class="cat-item cat-item-1"><a href="https://www.staldal.nu/tech/category/uncategorized/">Uncategorized</a>
+</li>
+	<li class="cat-item cat-item-3"><a href="https://www.staldal.nu/tech/category/web/">web</a>
+</li>
+	<li class="cat-item cat-item-17"><a href="https://www.staldal.nu/tech/category/wine/">wine</a>
+</li>
+		</ul>
+</li><li id="archives-3" class="widget-container widget_archive"><h3 class="widget-title">Archives</h3>		<ul>
+			<li><a href="https://www.staldal.nu/tech/2016/06/">June 2016</a></li>
+	<li><a href="https://www.staldal.nu/tech/2016/02/">February 2016</a></li>
+	<li><a href="https://www.staldal.nu/tech/2015/08/">August 2015</a></li>
+	<li><a href="https://www.staldal.nu/tech/2015/07/">July 2015</a></li>
+	<li><a href="https://www.staldal.nu/tech/2015/06/">June 2015</a></li>
+	<li><a href="https://www.staldal.nu/tech/2015/05/">May 2015</a></li>
+	<li><a href="https://www.staldal.nu/tech/2014/12/">December 2014</a></li>
+	<li><a href="https://www.staldal.nu/tech/2014/10/">October 2014</a></li>
+	<li><a href="https://www.staldal.nu/tech/2014/06/">June 2014</a></li>
+	<li><a href="https://www.staldal.nu/tech/2014/03/">March 2014</a></li>
+	<li><a href="https://www.staldal.nu/tech/2013/12/">December 2013</a></li>
+	<li><a href="https://www.staldal.nu/tech/2013/10/">October 2013</a></li>
+	<li><a href="https://www.staldal.nu/tech/2013/08/">August 2013</a></li>
+	<li><a href="https://www.staldal.nu/tech/2013/01/">January 2013</a></li>
+	<li><a href="https://www.staldal.nu/tech/2012/08/">August 2012</a></li>
+	<li><a href="https://www.staldal.nu/tech/2012/07/">July 2012</a></li>
+	<li><a href="https://www.staldal.nu/tech/2012/01/">January 2012</a></li>
+	<li><a href="https://www.staldal.nu/tech/2011/12/">December 2011</a></li>
+	<li><a href="https://www.staldal.nu/tech/2011/11/">November 2011</a></li>
+	<li><a href="https://www.staldal.nu/tech/2011/10/">October 2011</a></li>
+	<li><a href="https://www.staldal.nu/tech/2011/07/">July 2011</a></li>
+	<li><a href="https://www.staldal.nu/tech/2011/05/">May 2011</a></li>
+	<li><a href="https://www.staldal.nu/tech/2011/04/">April 2011</a></li>
+	<li><a href="https://www.staldal.nu/tech/2010/11/">November 2010</a></li>
+	<li><a href="https://www.staldal.nu/tech/2010/08/">August 2010</a></li>
+	<li><a href="https://www.staldal.nu/tech/2010/06/">June 2010</a></li>
+	<li><a href="https://www.staldal.nu/tech/2010/04/">April 2010</a></li>
+	<li><a href="https://www.staldal.nu/tech/2009/11/">November 2009</a></li>
+	<li><a href="https://www.staldal.nu/tech/2009/09/">September 2009</a></li>
+	<li><a href="https://www.staldal.nu/tech/2009/08/">August 2009</a></li>
+	<li><a href="https://www.staldal.nu/tech/2009/07/">July 2009</a></li>
+	<li><a href="https://www.staldal.nu/tech/2009/04/">April 2009</a></li>
+	<li><a href="https://www.staldal.nu/tech/2009/01/">January 2009</a></li>
+	<li><a href="https://www.staldal.nu/tech/2008/12/">December 2008</a></li>
+	<li><a href="https://www.staldal.nu/tech/2008/07/">July 2008</a></li>
+	<li><a href="https://www.staldal.nu/tech/2007/10/">October 2007</a></li>
+	<li><a href="https://www.staldal.nu/tech/2007/05/">May 2007</a></li>
+	<li><a href="https://www.staldal.nu/tech/2007/03/">March 2007</a></li>
+	<li><a href="https://www.staldal.nu/tech/2006/09/">September 2006</a></li>
+	<li><a href="https://www.staldal.nu/tech/2006/05/">May 2006</a></li>
+		</ul>
+		</li>			</ul>
+		</div><!-- #primary .widget-area -->
+
+	</div><!-- #main -->
+
+	<div id="footer" role="contentinfo">
+		<div id="colophon">
+
+
+
+			<div id="site-info">
+				<a href="https://www.staldal.nu/tech/" title="Mikael Ståldal's technical blog" rel="home">
+					Mikael Ståldal's technical blog				</a>
+			</div><!-- #site-info -->
+
+			<div id="site-generator">
+								<a href="https://wordpress.org/" title="Semantic Personal Publishing Platform">Proudly powered by WordPress.</a>
+			</div><!-- #site-generator -->
+
+		</div><!-- #colophon -->
+	</div><!-- #footer -->
+
+</div><!-- #wrapper -->
+
+<script type="text/javascript" src="How%20to%20roll%20your%20own%20Debian%20based%20Linux%20distro%20_%20Mikael%20St%C3%A5ldal%27s%20technical%20blog_files/wp-embed.js"></script>
+
+
+
+
+
+
+</body></html>
+<!-- Dynamic page generated in 0.277 seconds. -->
+<!-- Cached page generated by WP-Super-Cache on 2017-06-20 09:58:44 -->
+<!-- super cache -->
