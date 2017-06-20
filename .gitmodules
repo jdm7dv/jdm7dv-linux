@@ -1,0 +1,6 @@
+[submodule "mls"]
+	path = mls
+	url = http://github.com/ivandavidov/minimal-linux-script
+[submodule "minimal"]
+	path = minimal
+	url = https://github.com/ivandavidov/minimal.git
